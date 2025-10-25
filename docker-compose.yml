@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  imdb-downloader:
+    build: .
+    container_name: imdb-dataset-downloader
+    ports:
+      - "8000:8000"
+    environment:
+      # Application Settings
+      - APP_NAME=IMDb Dataset Downloader
+      - APP_VERSION=1.0.0
+      - DEBUG=false
+      
+      # Server Settings
+      - HOST=0.0.0.0
+      - PORT=8000
+      
+      # File Settings
+      - DOWNLOAD_DIR=/app/data/imdb_datasets
+      
+      # Logging Settings
+      - LOG_LEVEL=INFO
+      
+      # Storage Configuration
+      - USE_AZURE_BLOB=false
+      
+      # Azure Blob Storage Settings (unused when USE_AZURE_BLOB=false)
+      - AZURE_STORAGE_CONNECTION_STRING=
+      - AZURE_STORAGE_ACCOUNT_NAME=
+      - AZURE_STORAGE_ACCOUNT_KEY=
+      - AZURE_CONTAINER_NAME=imdb-dataset
+    volumes:
+      # Mount data directory for persistence
+      - imdb_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  imdb_data:
+    driver: local

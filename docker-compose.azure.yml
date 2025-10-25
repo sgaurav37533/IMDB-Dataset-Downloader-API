@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  imdb-downloader-azure:
+    build: .
+    container_name: imdb-dataset-downloader-azure
+    ports:
+      - "8000:8000"
+    environment:
+      # Application Settings
+      - APP_NAME=IMDb Dataset Downloader
+      - APP_VERSION=1.0.0
+      - DEBUG=false
+      
+      # Server Settings
+      - HOST=0.0.0.0
+      - PORT=8000
+      
+      # File Settings
+      - DOWNLOAD_DIR=/app/data/imdb_datasets
+      
+      # Logging Settings
+      - LOG_LEVEL=INFO
+      
+      # Storage Configuration - Azure Blob Storage
+      - USE_AZURE_BLOB=true
+      
+      # Azure Blob Storage Settings
+      # Replace these with your actual Azure Storage credentials
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_STORAGE_ACCOUNT_KEY=${AZURE_STORAGE_ACCOUNT_KEY}
+      - AZURE_CONTAINER_NAME=${AZURE_CONTAINER_NAME:-imdb-datasets}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # No volumes needed for Azure Blob Storage mode
