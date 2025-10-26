@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "AzureSqlTable1",
+						"referenceName": "title_movie_ratings",
 						"type": "DatasetReference"
 					},
 					"name": "TitleMovieRatings"
