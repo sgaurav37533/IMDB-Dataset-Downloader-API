@@ -112,6 +112,147 @@ ALTER TABLE title_ratings
 ADD CONSTRAINT fk_title_ratings_tconst 
 FOREIGN KEY (tconst) REFERENCES title_basics(tconst) ON DELETE CASCADE;
 
+-- Additional rating tables for different title types
+CREATE TABLE short_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_episode_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_mini_series_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_movie_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_pilot_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_series_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_short_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE tv_special_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE video_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
+CREATE TABLE video_game_ratings (
+    tconst NVARCHAR(20) PRIMARY KEY,
+    title_type NVARCHAR(50),
+    primary_title NVARCHAR(500),
+    original_title NVARCHAR(500),
+    is_adult BIT,
+    start_year INT,
+    end_year INT,
+    runtime_minutes INT,
+    genres NVARCHAR(MAX),
+    average_rating DECIMAL(3,1),
+    num_votes INT
+);
+
 CREATE VIEW movies_with_ratings AS
 SELECT 
     tb.tconst,

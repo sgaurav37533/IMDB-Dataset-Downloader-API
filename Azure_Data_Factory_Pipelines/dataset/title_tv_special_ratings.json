@@ -1,0 +1,16 @@
+{
+    "name": "title_tv_special_ratings",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureSqlDatabase1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "tv_special_ratings"
+        }
+    }
+}

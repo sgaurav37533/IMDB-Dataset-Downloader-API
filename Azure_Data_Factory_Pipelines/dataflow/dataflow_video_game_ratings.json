@@ -1,0 +1,91 @@
+{
+    "name": "dataflow_video_game_ratings",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "title_basics_table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "TitleBasics"
+                },
+                {
+                    "dataset": {
+                        "referenceName": "title_ratings_table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "TitleRatings"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "title_video_game_ratings",
+                        "type": "DatasetReference"
+                    },
+                    "name": "VideoGameRatingsSink"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "join1",
+                    "description": "left join on 'source1' and 'source2'"
+                },
+                {
+                    "name": "filter1"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          tconst as string,",
+                "          title_type as string,",
+                "          primary_title as string,",
+                "          original_title as string,",
+                "          is_adult as string,",
+                "          start_year as string,",
+                "          end_year as string,",
+                "          runtime_minutes as string,",
+                "          genres as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     isolationLevel: 'READ_UNCOMMITTED',",
+                "     format: 'table') ~> TitleBasics",
+                "source(output(",
+                "          tconst as string,",
+                "          average_rating as string,",
+                "          num_votes as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     isolationLevel: 'READ_UNCOMMITTED',",
+                "     format: 'table') ~> TitleRatings",
+                "TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+                "     joinType:'left',",
+                "     matchType:'exact',",
+                "     ignoreSpaces: false,",
+                "     broadcast: 'auto')~> join1",
+                "join1 filter(equals(title_type,'videoGame')) ~> filter1",
+                "filter1 sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'allErrors',",
+                "     transactionCommit: 'single',",
+                "     reportSuccessOnError: false,",
+                "     partitionBy('key',",
+                "          0,",
+                "          is_adult,",
+                "          genres",
+                "     )) ~> VideoGameRatingsSink"
+            ]
+        }
+    }
+}

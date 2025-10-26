@@ -1,5 +1,5 @@
 {
-	"name": "AzureSqlTable1",
+	"name": "title_movie_ratings",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase1",
