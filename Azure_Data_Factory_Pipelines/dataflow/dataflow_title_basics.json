@@ -1,0 +1,82 @@
+{
+	"name": "dataflow_title_basics",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_basics_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleBasicsSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_basics_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleBasicsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitleBasics"
+				},
+				{
+					"name": "filter6"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          tconst as string,",
+				"          titleType as string,",
+				"          primaryTitle as string,",
+				"          originalTitle as string,",
+				"          isAdult as string,",
+				"          startYear as string,",
+				"          endYear as string,",
+				"          runtimeMinutes as string,",
+				"          genres as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleBasicsSource",
+				"TitleBasicsSource select(mapColumn(",
+				"          tconst,",
+				"          title_type = titleType,",
+				"          primary_title = primaryTitle,",
+				"          original_title = originalTitle,",
+				"          is_adult = isAdult,",
+				"          start_year = startYear,",
+				"          end_year = endYear,",
+				"          runtime_minutes = runtimeMinutes,",
+				"          genres",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleBasics",
+				"selectTitleBasics filter(!(isNull(tconst))) ~> filter6",
+				"filter6 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleBasicsSink"
+			]
+		}
+	}
+}

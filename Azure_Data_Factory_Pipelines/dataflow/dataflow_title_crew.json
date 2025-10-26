@@ -1,0 +1,70 @@
+{
+	"name": "dataflow_title_crew",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_crew_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleCrewSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_crew_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleCrewSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitleCrew"
+				},
+				{
+					"name": "filter2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          tconst as string,",
+				"          directors as string,",
+				"          writers as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleCrewSource",
+				"TitleCrewSource select(mapColumn(",
+				"          tconst,",
+				"          directors,",
+				"          writers",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleCrew",
+				"selectTitleCrew filter(!(isNull(tconst))) ~> filter2",
+				"filter2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleCrewSink"
+			]
+		}
+	}
+}

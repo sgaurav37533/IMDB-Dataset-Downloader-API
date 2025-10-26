@@ -1,0 +1,76 @@
+{
+	"name": "dataflow_name_basics",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "name_basics_source",
+						"type": "DatasetReference"
+					},
+					"name": "NameBasicsSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "name_basics_table",
+						"type": "DatasetReference"
+					},
+					"name": "NameBasicsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectNameBasics"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          nconst as string,",
+				"          primaryName as string,",
+				"          birthYear as string,",
+				"          deathYear as string,",
+				"          primaryProfession as string,",
+				"          knownForTitles as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> NameBasicsSource",
+				"NameBasicsSource select(mapColumn(",
+				"          nconst,",
+				"          primary_name = primaryName,",
+				"          birth_year = birthYear,",
+				"          death_year = deathYear,",
+				"          primary_profession = primaryProfession,",
+				"          known_for_titles = knownForTitles",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectNameBasics",
+				"selectNameBasics filter(!(isNull(nconst))) ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> NameBasicsSink"
+			]
+		}
+	}
+}

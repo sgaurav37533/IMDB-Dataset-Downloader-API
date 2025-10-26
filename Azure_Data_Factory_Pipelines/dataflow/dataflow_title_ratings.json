@@ -1,0 +1,70 @@
+{
+	"name": "dataflow_title_ratings",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_ratings_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleRatingsSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_ratings_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleRatingsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitleRatings"
+				},
+				{
+					"name": "filter5"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          tconst as string,",
+				"          averageRating as string,",
+				"          numVotes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleRatingsSource",
+				"TitleRatingsSource select(mapColumn(",
+				"          tconst,",
+				"          average_rating = averageRating,",
+				"          num_votes = numVotes",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleRatings",
+				"selectTitleRatings filter(!(isNull(tconst))) ~> filter5",
+				"filter5 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleRatingsSink"
+			]
+		}
+	}
+}

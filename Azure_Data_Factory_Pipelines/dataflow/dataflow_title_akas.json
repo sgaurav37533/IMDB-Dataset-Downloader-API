@@ -1,0 +1,80 @@
+{
+	"name": "dataflow_title_akas",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_akas_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleAkasSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_akas_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleAkasSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitleAkas"
+				},
+				{
+					"name": "filter7"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          titleId as string,",
+				"          ordering as string,",
+				"          title as string,",
+				"          region as string,",
+				"          language as string,",
+				"          types as string,",
+				"          attributes as string,",
+				"          isOriginalTitle as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleAkasSource",
+				"TitleAkasSource select(mapColumn(",
+				"          title_id = titleId,",
+				"          ordering,",
+				"          title,",
+				"          region,",
+				"          language,",
+				"          types,",
+				"          attributes,",
+				"          is_original_title = isOriginalTitle",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleAkas",
+				"selectTitleAkas filter(!(isNull(title_id))) ~> filter7",
+				"filter7 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleAkasSink"
+			]
+		}
+	}
+}

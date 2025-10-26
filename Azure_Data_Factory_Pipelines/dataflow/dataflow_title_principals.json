@@ -1,0 +1,76 @@
+{
+	"name": "dataflow_title_principals",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_principals_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitlePrincipalsSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_principals_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitlePrincipalsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitlePrincipals"
+				},
+				{
+					"name": "filter4"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          tconst as string,",
+				"          ordering as string,",
+				"          nconst as string,",
+				"          category as string,",
+				"          job as string,",
+				"          characters as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitlePrincipalsSource",
+				"TitlePrincipalsSource select(mapColumn(",
+				"          tconst,",
+				"          ordering,",
+				"          nconst,",
+				"          category,",
+				"          job,",
+				"          characters",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitlePrincipals",
+				"selectTitlePrincipals filter(!(isNull(tconst))) ~> filter4",
+				"filter4 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitlePrincipalsSink"
+			]
+		}
+	}
+}

@@ -1,0 +1,431 @@
+{
+	"name": "dataflow_all_imdb_tables",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "name_basics_source",
+						"type": "DatasetReference"
+					},
+					"name": "NameBasicsSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_akas_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleAkasSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_basics_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleBasicsSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_crew_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleCrewSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_episode_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleEpisodeSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_principals_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitlePrincipalsSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_ratings_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleRatingsSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "name_basics_table",
+						"type": "DatasetReference"
+					},
+					"name": "NameBasicsSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_akas_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleAkasSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_basics_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleBasicsSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_crew_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleCrewSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_episode_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleEpisodeSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_principals_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitlePrincipalsSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "title_ratings_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleRatingsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectNameBasics"
+				},
+				{
+					"name": "selectTitleAkas"
+				},
+				{
+					"name": "selectTitleBasics"
+				},
+				{
+					"name": "selectTitleCrew"
+				},
+				{
+					"name": "selectTitleEpisode"
+				},
+				{
+					"name": "selectTitlePrincipals"
+				},
+				{
+					"name": "selectTitleRatings"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "filter3"
+				},
+				{
+					"name": "filter4"
+				},
+				{
+					"name": "filter5"
+				},
+				{
+					"name": "filter6"
+				},
+				{
+					"name": "filter7"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          nconst as string,",
+				"          primaryName as string,",
+				"          birthYear as string,",
+				"          deathYear as string,",
+				"          primaryProfession as string,",
+				"          knownForTitles as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> NameBasicsSource",
+				"source(output(",
+				"          titleId as string,",
+				"          ordering as string,",
+				"          title as string,",
+				"          region as string,",
+				"          language as string,",
+				"          types as string,",
+				"          attributes as string,",
+				"          isOriginalTitle as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleAkasSource",
+				"source(output(",
+				"          tconst as string,",
+				"          titleType as string,",
+				"          primaryTitle as string,",
+				"          originalTitle as string,",
+				"          isAdult as string,",
+				"          startYear as string,",
+				"          endYear as string,",
+				"          runtimeMinutes as string,",
+				"          genres as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleBasicsSource",
+				"source(output(",
+				"          tconst as string,",
+				"          directors as string,",
+				"          writers as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleCrewSource",
+				"source(output(",
+				"          tconst as string,",
+				"          parentTconst as string,",
+				"          seasonNumber as string,",
+				"          episodeNumber as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleEpisodeSource",
+				"source(output(",
+				"          tconst as string,",
+				"          ordering as string,",
+				"          nconst as string,",
+				"          category as string,",
+				"          job as string,",
+				"          characters as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitlePrincipalsSource",
+				"source(output(",
+				"          tconst as string,",
+				"          averageRating as string,",
+				"          numVotes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleRatingsSource",
+				"NameBasicsSource select(mapColumn(",
+				"          nconst,",
+				"          primaryName,",
+				"          birthYear,",
+				"          deathYear,",
+				"          primaryProfession,",
+				"          knownForTitles",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectNameBasics",
+				"TitleAkasSource select(mapColumn(",
+				"          title_id = titleId,",
+				"          ordering,",
+				"          title,",
+				"          region,",
+				"          language,",
+				"          types,",
+				"          attributes,",
+				"          isOriginalTitle",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleAkas",
+				"TitleBasicsSource select(mapColumn(",
+				"          tconst,",
+				"          titleType,",
+				"          primaryTitle,",
+				"          originalTitle,",
+				"          isAdult,",
+				"          startYear,",
+				"          endYear,",
+				"          runtimeMinutes,",
+				"          genres",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleBasics",
+				"TitleCrewSource select(mapColumn(",
+				"          tconst,",
+				"          directors,",
+				"          writers",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleCrew",
+				"TitleEpisodeSource select(mapColumn(",
+				"          tconst,",
+				"          parentTconst,",
+				"          seasonNumber,",
+				"          episodeNumber",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleEpisode",
+				"TitlePrincipalsSource select(mapColumn(",
+				"          tconst,",
+				"          ordering,",
+				"          nconst,",
+				"          category,",
+				"          job,",
+				"          characters",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitlePrincipals",
+				"TitleRatingsSource select(mapColumn(",
+				"          tconst,",
+				"          average_rating = averageRating,",
+				"          numVotes",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleRatings",
+				"selectNameBasics filter(!(isNull(nconst))) ~> filter1",
+				"selectTitleCrew filter(!(isNull(tconst))) ~> filter2",
+				"selectTitleEpisode filter(!(isNull(tconst))",
+				"&& !(isNull(parentTconst))) ~> filter3",
+				"selectTitlePrincipals filter(!(isNull(tconst))) ~> filter4",
+				"selectTitleRatings filter(!(isNull(tconst))) ~> filter5",
+				"selectTitleBasics filter(!(isNull(tconst))) ~> filter6",
+				"selectTitleAkas filter(!(isNull(title_id))) ~> filter7",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> NameBasicsSink",
+				"filter7 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleAkasSink",
+				"filter6 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleBasicsSink",
+				"filter2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleCrewSink",
+				"filter3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleEpisodeSink",
+				"filter4 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitlePrincipalsSink",
+				"filter5 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleRatingsSink"
+			]
+		}
+	}
+}

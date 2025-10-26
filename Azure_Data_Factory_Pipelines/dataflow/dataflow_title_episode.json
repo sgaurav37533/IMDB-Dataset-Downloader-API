@@ -1,0 +1,73 @@
+{
+	"name": "dataflow_title_episode",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "title_episode_source",
+						"type": "DatasetReference"
+					},
+					"name": "TitleEpisodeSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "title_episode_table",
+						"type": "DatasetReference"
+					},
+					"name": "TitleEpisodeSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectTitleEpisode"
+				},
+				{
+					"name": "filter3"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          tconst as string,",
+				"          parentTconst as string,",
+				"          seasonNumber as string,",
+				"          episodeNumber as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TitleEpisodeSource",
+				"TitleEpisodeSource select(mapColumn(",
+				"          tconst,",
+				"          parent_tconst = parentTconst,",
+				"          season_number = seasonNumber,",
+				"          episode_number = episodeNumber",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTitleEpisode",
+				"selectTitleEpisode filter(!(isNull(tconst))",
+				"&& !(isNull(parent_tconst))) ~> filter3",
+				"filter3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          nconst as string,",
+				"          primary_name as string,",
+				"          birth_year as integer,",
+				"          death_year as integer,",
+				"          primary_profession as string,",
+				"          known_for_titles as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> TitleEpisodeSink"
+			]
+		}
+	}
+}

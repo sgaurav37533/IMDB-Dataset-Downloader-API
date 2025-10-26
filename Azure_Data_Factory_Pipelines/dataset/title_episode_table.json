@@ -1,0 +1,44 @@
+{
+	"name": "title_episode_table",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "nconst",
+				"type": "nvarchar"
+			},
+			{
+				"name": "primary_name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "birth_year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "death_year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "primary_profession",
+				"type": "nvarchar"
+			},
+			{
+				"name": "known_for_titles",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "title_episode"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

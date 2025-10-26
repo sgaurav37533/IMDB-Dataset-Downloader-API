@@ -1,0 +1,9 @@
+{
+	"name": "imdb-de-adf",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9d39524e-e059-4903-b88e-72c8ae3f452d",
+		"tenantId": "12c61069-0ca7-4057-8790-70360d24977f"
+	}
+}
