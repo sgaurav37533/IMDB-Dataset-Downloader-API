@@ -9,29 +9,39 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "nconst",
+				"name": "tconst",
 				"type": "nvarchar"
 			},
 			{
-				"name": "primary_name",
+				"name": "title_type",
 				"type": "nvarchar"
 			},
 			{
-				"name": "birth_year",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "death_year",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "primary_profession",
+				"name": "primary_title",
 				"type": "nvarchar"
 			},
 			{
-				"name": "known_for_titles",
+				"name": "original_title",
+				"type": "nvarchar"
+			},
+			{
+				"name": "is_adult",
+				"type": "nvarchar"
+			},
+			{
+				"name": "start_year",
+				"type": "nvarchar"
+			},
+			{
+				"name": "end_year",
+				"type": "nvarchar"
+			},
+			{
+				"name": "runtime_minutes",
+				"type": "nvarchar"
+			},
+			{
+				"name": "genres",
 				"type": "nvarchar"
 			}
 		],

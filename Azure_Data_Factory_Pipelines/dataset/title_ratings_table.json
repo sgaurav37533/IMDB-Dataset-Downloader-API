@@ -9,29 +9,15 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "nconst",
+				"name": "tconst",
 				"type": "nvarchar"
 			},
 			{
-				"name": "primary_name",
+				"name": "average_rating",
 				"type": "nvarchar"
 			},
 			{
-				"name": "birth_year",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "death_year",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "primary_profession",
-				"type": "nvarchar"
-			},
-			{
-				"name": "known_for_titles",
+				"name": "num_votes",
 				"type": "nvarchar"
 			}
 		],
