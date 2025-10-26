@@ -1,0 +1,3956 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "imdb-de-adf"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
+		"AzureSqlDatabase1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "imdb-de.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "imdb_de"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "gaurav"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Initial_load')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_title_basics",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 0
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_basics') TRUNCATE TABLE dbo.title_basics",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "tconst",
+											"type": "String"
+										},
+										"sink": {
+											"name": "tconst",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "titleType",
+											"type": "String"
+										},
+										"sink": {
+											"name": "title_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "primaryTitle",
+											"type": "String"
+										},
+										"sink": {
+											"name": "primary_title",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "originalTitle",
+											"type": "String"
+										},
+										"sink": {
+											"name": "original_title",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "isAdult",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_adult",
+											"type": "Boolean",
+											"physicalType": "bit"
+										}
+									},
+									{
+										"source": {
+											"name": "startYear",
+											"type": "String"
+										},
+										"sink": {
+											"name": "start_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "endYear",
+											"type": "String"
+										},
+										"sink": {
+											"name": "end_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "runtimeMinutes",
+											"type": "String"
+										},
+										"sink": {
+											"name": "runtime_minutes",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "genres",
+											"type": "String"
+										},
+										"sink": {
+											"name": "genres",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_basics_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_name_basics",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'name_basics') TRUNCATE TABLE dbo.name_basics",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "nconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "nconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "primaryName",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "primary_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "birthYear",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "birth_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "deathYear",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "death_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "primaryProfession",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "primary_profession",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "knownForTitles",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "known_for_titles",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "name_basics_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "name_basics_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_title_akas",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_title_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_akas') TRUNCATE TABLE dbo.title_akas",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "titleId",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "nconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ordering",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "primary_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "title",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "birth_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "region",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "death_year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "language",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "primary_profession",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "types",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "known_for_titles",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_akas_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_akas_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_title_crew",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_title_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_crew') TRUNCATE TABLE dbo.title_crew",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "directors",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "directors",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "writers",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "writers",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_crew_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_crew_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_title_episode",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_title_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_episode') TRUNCATE TABLE dbo.title_episode",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "parentTconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "parent_tconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "seasonNumber",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "season_number",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "episodeNumber",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "episode_number",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_episode_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_episode_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_title_ratings",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_title_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_ratings') TRUNCATE TABLE dbo.title_ratings",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "averageRating",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "average_rating",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 1,
+											"precision": 3
+										}
+									},
+									{
+										"source": {
+											"name": "numVotes",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "num_votes",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_ratings_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_title_principals",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_title_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "copy_name_basics",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": "IF EXISTS (SELECT * FROM sys.tables WHERE name = 'title_principals') TRUNCATE TABLE dbo.title_principals",
+								"maxConcurrentConnections": 5,
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"parallelCopies": 32,
+							"dataIntegrationUnits": 4,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ordering",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ordering",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "nconst",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "nconst",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "category",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "category",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "job",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "characters",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "characters",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "title_principals_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "title_principals_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-10-26T19:33:13Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/name_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/name_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_akas_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_akas_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_crew_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_crew_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_episode_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_episode_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_principals_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_principals_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RatingMoviesPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dataflow_movie_ratings",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_movie_ratings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"TitleBasics": {},
+									"TitleRatings": {},
+									"TitleMovieRatings": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_movie_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/name_basics_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "name.basics.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/name_basics_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "nconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "birth_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "death_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "primary_profession",
+						"type": "nvarchar"
+					},
+					{
+						"name": "known_for_titles",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "name_basics"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_akas_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.akas.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_akas_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "nconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "birth_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "death_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "primary_profession",
+						"type": "nvarchar"
+					},
+					{
+						"name": "known_for_titles",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_akas"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_basics_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.basics.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_basics_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "tconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "title_type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_title",
+						"type": "nvarchar"
+					},
+					{
+						"name": "original_title",
+						"type": "nvarchar"
+					},
+					{
+						"name": "is_adult",
+						"type": "nvarchar"
+					},
+					{
+						"name": "start_year",
+						"type": "nvarchar"
+					},
+					{
+						"name": "end_year",
+						"type": "nvarchar"
+					},
+					{
+						"name": "runtime_minutes",
+						"type": "nvarchar"
+					},
+					{
+						"name": "genres",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_basics"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_crew_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.crew.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_crew_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "nconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "birth_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "death_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "primary_profession",
+						"type": "nvarchar"
+					},
+					{
+						"name": "known_for_titles",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_crew"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_episode_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.episode.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_episode_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "nconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "birth_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "death_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "primary_profession",
+						"type": "nvarchar"
+					},
+					{
+						"name": "known_for_titles",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_episode"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_movie_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_movie_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_principals_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.principals.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_principals_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "nconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "primary_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "birth_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "death_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "primary_profession",
+						"type": "nvarchar"
+					},
+					{
+						"name": "known_for_titles",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_principals"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_ratings_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "title.ratings.tsv",
+						"container": "imdb-dataset"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nconst\tprimaryName\tbirthYear\tdeathYear\tprimaryProfession\tknownForTitles",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_ratings_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "tconst",
+						"type": "nvarchar"
+					},
+					{
+						"name": "average_rating",
+						"type": "nvarchar"
+					},
+					{
+						"name": "num_votes",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "title_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_short_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "short_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_episode_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_episode_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_mini_series_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_mini_series_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_movie_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_movie_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_pilot_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_pilot_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_series_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_series_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_short_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_short_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_tv_special_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tv_special_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_video_game_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "video_game_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/title_video_ratings')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "video_ratings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase1_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_all_imdb_tables')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "name_basics_source",
+								"type": "DatasetReference"
+							},
+							"name": "NameBasicsSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_akas_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleAkasSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_basics_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasicsSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_crew_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleCrewSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_episode_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleEpisodeSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_principals_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitlePrincipalsSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatingsSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "name_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "NameBasicsSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_akas_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleAkasSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasicsSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_crew_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleCrewSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_episode_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleEpisodeSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_principals_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitlePrincipalsSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectNameBasics"
+						},
+						{
+							"name": "selectTitleAkas"
+						},
+						{
+							"name": "selectTitleBasics"
+						},
+						{
+							"name": "selectTitleCrew"
+						},
+						{
+							"name": "selectTitleEpisode"
+						},
+						{
+							"name": "selectTitlePrincipals"
+						},
+						{
+							"name": "selectTitleRatings"
+						},
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "filter2"
+						},
+						{
+							"name": "filter3"
+						},
+						{
+							"name": "filter4"
+						},
+						{
+							"name": "filter5"
+						},
+						{
+							"name": "filter6"
+						},
+						{
+							"name": "filter7"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          nconst as string,",
+						"          primaryName as string,",
+						"          birthYear as string,",
+						"          deathYear as string,",
+						"          primaryProfession as string,",
+						"          knownForTitles as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NameBasicsSource",
+						"source(output(",
+						"          titleId as string,",
+						"          ordering as string,",
+						"          title as string,",
+						"          region as string,",
+						"          language as string,",
+						"          types as string,",
+						"          attributes as string,",
+						"          isOriginalTitle as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleAkasSource",
+						"source(output(",
+						"          tconst as string,",
+						"          titleType as string,",
+						"          primaryTitle as string,",
+						"          originalTitle as string,",
+						"          isAdult as string,",
+						"          startYear as string,",
+						"          endYear as string,",
+						"          runtimeMinutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleBasicsSource",
+						"source(output(",
+						"          tconst as string,",
+						"          directors as string,",
+						"          writers as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleCrewSource",
+						"source(output(",
+						"          tconst as string,",
+						"          parentTconst as string,",
+						"          seasonNumber as string,",
+						"          episodeNumber as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleEpisodeSource",
+						"source(output(",
+						"          tconst as string,",
+						"          ordering as string,",
+						"          nconst as string,",
+						"          category as string,",
+						"          job as string,",
+						"          characters as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitlePrincipalsSource",
+						"source(output(",
+						"          tconst as string,",
+						"          averageRating as string,",
+						"          numVotes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleRatingsSource",
+						"NameBasicsSource select(mapColumn(",
+						"          nconst,",
+						"          primaryName,",
+						"          birthYear,",
+						"          deathYear,",
+						"          primaryProfession,",
+						"          knownForTitles",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectNameBasics",
+						"TitleAkasSource select(mapColumn(",
+						"          title_id = titleId,",
+						"          ordering,",
+						"          title,",
+						"          region,",
+						"          language,",
+						"          types,",
+						"          attributes,",
+						"          isOriginalTitle",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleAkas",
+						"TitleBasicsSource select(mapColumn(",
+						"          tconst,",
+						"          titleType,",
+						"          primaryTitle,",
+						"          originalTitle,",
+						"          isAdult,",
+						"          startYear,",
+						"          endYear,",
+						"          runtimeMinutes,",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleBasics",
+						"TitleCrewSource select(mapColumn(",
+						"          tconst,",
+						"          directors,",
+						"          writers",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleCrew",
+						"TitleEpisodeSource select(mapColumn(",
+						"          tconst,",
+						"          parentTconst,",
+						"          seasonNumber,",
+						"          episodeNumber",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleEpisode",
+						"TitlePrincipalsSource select(mapColumn(",
+						"          tconst,",
+						"          ordering,",
+						"          nconst,",
+						"          category,",
+						"          job,",
+						"          characters",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitlePrincipals",
+						"TitleRatingsSource select(mapColumn(",
+						"          tconst,",
+						"          average_rating = averageRating,",
+						"          numVotes",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleRatings",
+						"selectNameBasics filter(!(isNull(nconst))) ~> filter1",
+						"selectTitleCrew filter(!(isNull(tconst))) ~> filter2",
+						"selectTitleEpisode filter(!(isNull(tconst))",
+						"&& !(isNull(parentTconst))) ~> filter3",
+						"selectTitlePrincipals filter(!(isNull(tconst))) ~> filter4",
+						"selectTitleRatings filter(!(isNull(tconst))) ~> filter5",
+						"selectTitleBasics filter(!(isNull(tconst))) ~> filter6",
+						"selectTitleAkas filter(!(isNull(title_id))) ~> filter7",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> NameBasicsSink",
+						"filter7 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleAkasSink",
+						"filter6 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleBasicsSink",
+						"filter2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleCrewSink",
+						"filter3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleEpisodeSink",
+						"filter4 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitlePrincipalsSink",
+						"filter5 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/name_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_akas_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_crew_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_episode_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_principals_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_source')]",
+				"[concat(variables('factoryId'), '/datasets/name_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_akas_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_crew_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_episode_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_principals_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_movie_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_movie_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TitleMovieRatings"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'movie')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TitleMovieRatings"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_movie_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_name_basics')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "name_basics_source",
+								"type": "DatasetReference"
+							},
+							"name": "NameBasicsSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "name_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "NameBasicsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectNameBasics"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          nconst as string,",
+						"          primaryName as string,",
+						"          birthYear as string,",
+						"          deathYear as string,",
+						"          primaryProfession as string,",
+						"          knownForTitles as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NameBasicsSource",
+						"NameBasicsSource select(mapColumn(",
+						"          nconst,",
+						"          primary_name = primaryName,",
+						"          birth_year = birthYear,",
+						"          death_year = deathYear,",
+						"          primary_profession = primaryProfession,",
+						"          known_for_titles = knownForTitles",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectNameBasics",
+						"selectNameBasics filter(!(isNull(nconst))) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> NameBasicsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/name_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/name_basics_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_short_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_short_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "ShortRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'short')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> ShortRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_short_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_akas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_akas_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleAkasSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_akas_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleAkasSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitleAkas"
+						},
+						{
+							"name": "filter7"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          titleId as string,",
+						"          ordering as string,",
+						"          title as string,",
+						"          region as string,",
+						"          language as string,",
+						"          types as string,",
+						"          attributes as string,",
+						"          isOriginalTitle as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleAkasSource",
+						"TitleAkasSource select(mapColumn(",
+						"          title_id = titleId,",
+						"          ordering,",
+						"          title,",
+						"          region,",
+						"          language,",
+						"          types,",
+						"          attributes,",
+						"          is_original_title = isOriginalTitle",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleAkas",
+						"selectTitleAkas filter(!(isNull(title_id))) ~> filter7",
+						"filter7 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleAkasSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_akas_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_akas_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_basics')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasicsSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasicsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitleBasics"
+						},
+						{
+							"name": "filter6"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          titleType as string,",
+						"          primaryTitle as string,",
+						"          originalTitle as string,",
+						"          isAdult as string,",
+						"          startYear as string,",
+						"          endYear as string,",
+						"          runtimeMinutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleBasicsSource",
+						"TitleBasicsSource select(mapColumn(",
+						"          tconst,",
+						"          title_type = titleType,",
+						"          primary_title = primaryTitle,",
+						"          original_title = originalTitle,",
+						"          is_adult = isAdult,",
+						"          start_year = startYear,",
+						"          end_year = endYear,",
+						"          runtime_minutes = runtimeMinutes,",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleBasics",
+						"selectTitleBasics filter(!(isNull(tconst))) ~> filter6",
+						"filter6 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleBasicsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_crew')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_crew_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleCrewSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_crew_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleCrewSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitleCrew"
+						},
+						{
+							"name": "filter2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          directors as string,",
+						"          writers as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleCrewSource",
+						"TitleCrewSource select(mapColumn(",
+						"          tconst,",
+						"          directors,",
+						"          writers",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleCrew",
+						"selectTitleCrew filter(!(isNull(tconst))) ~> filter2",
+						"filter2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleCrewSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_crew_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_crew_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_episode')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_episode_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleEpisodeSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_episode_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleEpisodeSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitleEpisode"
+						},
+						{
+							"name": "filter3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          parentTconst as string,",
+						"          seasonNumber as string,",
+						"          episodeNumber as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleEpisodeSource",
+						"TitleEpisodeSource select(mapColumn(",
+						"          tconst,",
+						"          parent_tconst = parentTconst,",
+						"          season_number = seasonNumber,",
+						"          episode_number = episodeNumber",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleEpisode",
+						"selectTitleEpisode filter(!(isNull(tconst))",
+						"&& !(isNull(parent_tconst))) ~> filter3",
+						"filter3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleEpisodeSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_episode_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_episode_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_principals')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_principals_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitlePrincipalsSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_principals_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitlePrincipalsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitlePrincipals"
+						},
+						{
+							"name": "filter4"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          ordering as string,",
+						"          nconst as string,",
+						"          category as string,",
+						"          job as string,",
+						"          characters as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitlePrincipalsSource",
+						"TitlePrincipalsSource select(mapColumn(",
+						"          tconst,",
+						"          ordering,",
+						"          nconst,",
+						"          category,",
+						"          job,",
+						"          characters",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitlePrincipals",
+						"selectTitlePrincipals filter(!(isNull(tconst))) ~> filter4",
+						"filter4 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          nconst as string,",
+						"          primary_name as string,",
+						"          birth_year as integer,",
+						"          death_year as integer,",
+						"          primary_profession as string,",
+						"          known_for_titles as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitlePrincipalsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_principals_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_principals_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_title_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_ratings_source",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatingsSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectTitleRatings"
+						},
+						{
+							"name": "filter5"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          averageRating as string,",
+						"          numVotes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TitleRatingsSource",
+						"TitleRatingsSource select(mapColumn(",
+						"          tconst,",
+						"          average_rating = averageRating,",
+						"          num_votes = numVotes",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectTitleRatings",
+						"selectTitleRatings filter(!(isNull(tconst))) ~> filter5",
+						"filter5 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TitleRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_ratings_source')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_episode_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_episode_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVEpisodeRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvEpisode')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVEpisodeRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_episode_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_mini_series_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_mini_series_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVMiniSeriesRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvMiniSeries')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVMiniSeriesRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_mini_series_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_movie_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_movie_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVMovieRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvMovie')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVMovieRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_movie_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_pilot_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_pilot_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVPilotRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvPilot')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVPilotRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_pilot_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_series_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_series_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVSeriesRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvSeries')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVSeriesRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_series_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_short_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_short_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVShortRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvShort')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVShortRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_short_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_special_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_special_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVSpecialRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvSpecial')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVSpecialRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_tv_special_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_video_game_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_video_game_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "VideoGameRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'videoGame')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> VideoGameRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_video_game_ratings')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_video_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_video_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "VideoRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'video')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> VideoRatingsSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/title_basics_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_ratings_table')]",
+				"[concat(variables('factoryId'), '/datasets/title_video_ratings')]"
+			]
+		}
+	]
+}

@@ -1,0 +1,719 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "imdb-de-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_movie_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_movie_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVMovieRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvMovie')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVMovieRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_pilot_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_pilot_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVPilotRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvPilot')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVPilotRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_series_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_series_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVSeriesRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvSeries')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVSeriesRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_short_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_short_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVShortRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvShort')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVShortRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_tv_special_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_tv_special_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "TVSpecialRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'tvSpecial')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> TVSpecialRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_video_game_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_video_game_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "VideoGameRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'videoGame')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> VideoGameRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_video_ratings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "title_basics_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleBasics"
+						},
+						{
+							"dataset": {
+								"referenceName": "title_ratings_table",
+								"type": "DatasetReference"
+							},
+							"name": "TitleRatings"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "title_video_ratings",
+								"type": "DatasetReference"
+							},
+							"name": "VideoRatingsSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1",
+							"description": "left join on 'source1' and 'source2'"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          tconst as string,",
+						"          title_type as string,",
+						"          primary_title as string,",
+						"          original_title as string,",
+						"          is_adult as string,",
+						"          start_year as string,",
+						"          end_year as string,",
+						"          runtime_minutes as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleBasics",
+						"source(output(",
+						"          tconst as string,",
+						"          average_rating as string,",
+						"          num_votes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> TitleRatings",
+						"TitleBasics, TitleRatings join(TitleBasics@tconst == TitleRatings@tconst,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 filter(equals(title_type,'video')) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'allErrors',",
+						"     transactionCommit: 'single',",
+						"     reportSuccessOnError: false,",
+						"     partitionBy('key',",
+						"          0,",
+						"          is_adult,",
+						"          genres",
+						"     )) ~> VideoRatingsSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RatingMoviesPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dataflow_movie_ratings",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_movie_ratings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"TitleBasics": {},
+									"TitleRatings": {},
+									"TitleMovieRatings": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		}
+	]
+}
